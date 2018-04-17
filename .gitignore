@@ -53,3 +53,6 @@ dkms.conf
 
 # Files made for VSCode
 .vscode/c_cpp_properties.json
+.vscode/launch.json
+.vscode/settings.json
+src/cthread
