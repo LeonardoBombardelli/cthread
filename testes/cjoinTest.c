@@ -16,6 +16,9 @@ void *MostraLixoNaTela(void *arg){
     printf("Hello there! \n");
     cyield();    
     printf("%s\n", argument);
+    cyield();
+    cyield();
+    cyield();
     return NULL;
 }
 
@@ -29,6 +32,10 @@ int main(){
     printf("Main done creating its children\n");
     cjoin(tid2);
     cjoin(tid1);
+
+    cyield();
+    cyield();
+    printf("Fon\n");
     
     return(1);
 }

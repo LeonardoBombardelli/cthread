@@ -68,7 +68,7 @@ int cyield()
       }
     }
 
-    if(FirstFila2(&readyQueue) != 0){ return 0; }
+    if(FirstFila2(&readyQueue) != 0){ return -1; }
 
     yieldingThread = runningThread;
     yieldingThread->state = PROCST_APTO;

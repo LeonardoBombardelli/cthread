@@ -12,11 +12,15 @@ A simple test that probably won't work :)
 void MostraLixoNaTela()
 {
     printf("Leonardo Bombardelli");
+    cyield();
+    printf("Fon");
 }
 
 int main()
 {
     ccreate(MostraLixoNaTela, 0, 0);
+    ccreate(MostraLixoNaTela, 0, 0);
+    cyield();
     cyield();
     return(1);
 }
