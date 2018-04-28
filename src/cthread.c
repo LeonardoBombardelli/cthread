@@ -21,7 +21,8 @@ int ccreate(void* (*start)(void*), void *arg, int prio)
     if(numberOfThreadsCreated == INITIALTID) 
     {
       int initializedCorrectly = InitializingCThreads();
-      if(initializedCorrectly != 0){
+      if(initializedCorrectly != 0)
+      {
           printf("Erro criando as filas\n");
           return -1;
       }
@@ -53,9 +54,19 @@ int ccreate(void* (*start)(void*), void *arg, int prio)
 
 }
 
-int cyield( )
+int cyield()
 {
     TCB_t* yieldingThread;
+
+    if(numberOfThreadsCreated == INITIALTID) 
+    {
+      int initializedCorrectly = InitializingCThreads();
+      if(initializedCorrectly != 0)
+      {
+          printf("Erro criando as filas\n");
+          return -1;
+      }
+    }
 
     if(FirstFila2(&readyQueue) != 0){ return 0; }
 
@@ -70,5 +81,67 @@ int cyield( )
 
     swapcontext(&yieldingThread->context, &yieldContext);
 
+    return 0;
+}
+
+int cjoin(int tid)
+{
+    int found = 0;
+    TCB_t *joiningThread;
+    cjoin_struct *cj;
+
+    if(numberOfThreadsCreated == INITIALTID) 
+    {
+      int initializedCorrectly = InitializingCThreads();
+      if(initializedCorrectly != 0)
+      {
+          printf("Erro criando as filas\n");
+          return -1;
+      }
+    }
+
+    joiningThread = runningThread;
+
+    if(searchAtcjoinQueue(tid) == 1)
+    {
+      // Some thread is already waiting for this tid
+      return -1;
+    }
+
+    // Starts looking for the tid
+    found = searchFor(&readyQueue, tid);
+    if(found == 0)
+    {
+      // Needs to keep looking for tid
+      found = searchFor(&blockedQueue, tid);
+      if(found == 0)
+      {
+        // Needs to keep looking for tid
+        found = searchFor(&suspenseReadyQueue, tid);
+        if(found == 0)
+        {
+          // Needs to keep looking for tid
+          found = searchFor(&suspenseBlockedQueue, tid);
+          if(found == 0)
+          {
+            // Thread doesn't exists (not created yet or already has finished) or it's the same as the running thread
+            return -1;
+          }
+        }
+      }
+    }
+    
+    // Correctly executed, running thread is now blocked
+    joiningThread->state = PROCST_BLOQ;
+    AppendFila2(&blockedQueue, (void*) joiningThread);
+
+    // Establishes a link between the waiting thread and the one that it is waiting
+    cj = (cjoin_struct*) malloc(sizeof(cjoin_struct));
+    cj->waitingTID = runningThread->tid;
+    cj->beingWaitedTID = tid;
+    AppendFila2(&cjoinQueue, (void*) cj);
+
+    // I'm not 100% sure that's right...
+    swapcontext(&joiningThread->context, &yieldContext);
     return 0;
 }

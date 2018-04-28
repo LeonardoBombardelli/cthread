@@ -33,6 +33,7 @@ extern FILA2 readyQueue;
 extern FILA2 blockedQueue;
 extern FILA2 suspenseReadyQueue;
 extern FILA2 suspenseBlockedQueue;
+extern FILA2 cjoinQueue;
 extern TCB_t *runningThread;
 
 extern TCB_t mainThread;
@@ -55,11 +56,18 @@ int InitializingCThreads();
 // Returns the TID of the thread that was waiting for the thread with TID "beingWaitedTID" (if there is one)
 // If finds a thread waiting for the "beingWaitedTID", it also removes the cjoin_struct from the queue
 // If there's no thread waiting for it, *ok == 0 (*ok == 1 otherwise)
-int getThreadWaitingFor(int beingWaitedTID, int *ok)
+int getThreadWaitingFor(int beingWaitedTID, int *ok);
 
 // Removes a thread from the suspendedQueue and insert it to the readyQueue
 // Returns 0 upon success, -1 otherwise (probably won't be neccessary tho)
-int removeFromBlocked(int tid)
+int removeFromBlocked(int tid);
+
+// Returns 1 if it has found tid at the queue, 0 otherwise
+int searchFor(PFILA2 queue, int tid);
+
+// Returns 1 if it has found tid as beingWaitedTID in the cjoinQueue, 0 otherwise
+// Used to check if there is already a thread waiting for tid
+int searchAtcjoinQueue(int tid);
 
 
 #endif
