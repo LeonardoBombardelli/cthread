@@ -15,17 +15,16 @@ LIB_DIR=./lib
 INC_DIR=./include
 BIN_DIR=./bin
 SRC_DIR=./src
+OBJS=bin/support.o bin/cutils.o bin/cthread.o 
 
-all: regra1 regra2 regran
+all: bin/cutils.o bin/cthread.o 
+	ar crs lib/libcthread.a $(OBJS)
 
-regra1: #dependências para a regra1
-	$(CC) -o $(BIN_DIR)regra1 $(SRC_DIR)regra1.c -Wall
+bin/cutils.o: src/cutils.c
+	gcc -c src/cutils.c -o bin/cutils.o
 
-regra2: #dependências para a regra2
-	$(CC) -o $(BIN_DIR)regra2 $(SRC_DIR)regra2.c -Wall
-
-regran: #dependências para a regran
-	$(CC) -o $(BIN_DIR)regran $(SRC_DIR)regran.c -Wall
+bin/cthread.o: src/cthread.c
+	gcc -c src/cthread.c -o bin/cthread.o
 
 clean:
 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
