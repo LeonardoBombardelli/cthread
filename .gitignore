@@ -55,4 +55,8 @@ dkms.conf
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/settings.json
+
+# Compiled files with no extension
 src/cthread
+testes/test1
+testes/twoThreadsWithArguments
