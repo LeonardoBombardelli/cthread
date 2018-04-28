@@ -1,4 +1,4 @@
-echo Insert file name: \n
+echo Insert file name:
 read NAMEFILE
 gcc -m32 -c src/cutils.c -o bin/cutils.o
 gcc -m32 -c src/cthread.c -o bin/cthread.o
