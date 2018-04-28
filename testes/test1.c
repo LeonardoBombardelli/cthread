@@ -16,6 +16,7 @@ void MostraLixoNaTela()
 
 int main()
 {
-    ccreate(MostraLixoNaTela, 0, NULL);
+    ccreate(MostraLixoNaTela, 0, 0);
+    cyield();
     return(1);
 }
