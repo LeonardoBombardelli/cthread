@@ -21,8 +21,8 @@ void* ShowsString(void *arg){
 void* JoinsThread(void *tid){
     int* joinToTID = (int *)tid;
     printf("I got into JoinsThread! \n"); //It doesn't appear, so the error is before getting here!
-    printf("Trying to join thread TID %d\n", *joinToTID);
-    if(cjoin(*joinToTID) == -1) printf("The thread couldn't join\n");
+    printf("Trying to join thread TID %d\n", &joinToTID);
+    if(cjoin(&joinToTID) == -1) printf("The thread couldn't join\n");
     return NULL;
 }
 
