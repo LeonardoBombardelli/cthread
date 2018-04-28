@@ -1,1 +1,0 @@
-gcc -m32 -o src/cthread src/cthread.c -L./lib -lsupport -Wall
