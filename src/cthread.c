@@ -145,3 +145,51 @@ int cjoin(int tid)
     swapcontext(&joiningThread->context, &yieldContext);
     return 0;
 }
+
+int csuspend (int tid)
+{
+    int returnCode;
+
+    // verifica se o tid recebido ja se encontra nas filas de suspensos
+    if((searchFor(&suspenseReadyQueue, tid) !=0 ) ||
+       (searchFor(&suspenseBlockedQueue, tid) !=0))
+    {
+        printf("Erro: thread ja suspensa\n");
+        return -1;
+    } else {
+
+        // verifica se o tid recebido pertence a thread que fez a chamada
+        if(runningThread->tid==tid)
+        {
+            printf("Erro: thread suspendendo a si mesma\n");
+            return -1;
+        } else {
+
+            // caso encontre o tid na fila de aptos
+            if(searchFor(&readyQueue, tid) ==1)
+            {
+                returnCode = replaceThreadOnQueues(&readyQueue, &suspenseReadyQueue, PROCST_APTO_SUS, tid);
+                if( returnCode != 0)
+                {
+                    printf("Erro suspendendo a thread\n");
+                    return -1;
+                } else return 0;
+            } else {
+
+                // caso encontre o tid na fila de bloqueados
+                if(searchFor(&blockedQueue, tid) ==1)
+                {
+                    returnCode = replaceThreadOnQueues(&blockedQueue, &suspenseBlockedQueue, PROCST_BLOQ_SUS, tid);
+                    if( returnCode != 0)
+                    {
+                        printf("Erro suspendendo a thread\n");
+                        return -1;
+                    } else return 0;
+                } else {
+                    printf("Erro: thread invalida ou inexistente");
+                    return -1;
+                }
+            }
+        }
+    }
+}

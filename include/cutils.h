@@ -69,5 +69,11 @@ int searchFor(PFILA2 queue, int tid);
 // Used to check if there is already a thread waiting for tid
 int searchAtcjoinQueue(int tid);
 
+/*	Função que recebe duas filas e um tid;
+ *	Retira um nodo de sua posiçao na fila velha e insere no final da fila nova;
+ *	Retorna 0 se ok, numero negativo em caso de erro.
+ */
+int replaceThreadOnQueues(PFILA2 oldQueue, PFILA2 newQueue, int queueCode, int tid);
+
 
 #endif

@@ -206,3 +206,51 @@ int searchAtcjoinQueue(int tid)
 
   return found;
 }
+
+/*	Função que recebe duas filas e um tid;
+ *	Retira um nodo de sua posiçao na fila velha e insere no final da fila nova;
+ *	Retorna 0 se ok, numero negativo em caso de erro.
+ */
+
+int replaceThreadOnQueues(PFILA2 oldQueue, PFILA2 newQueue, int queueCode, int tid)
+{
+    TCB_t* threadToBeReplaced;
+    TCB_t* threadIterator;
+
+    if(searchFor(oldQueue, tid) !=1)
+    {
+        printf("Erro: tid nao encontrado\n");
+        return -1;
+    } else {
+
+        FirstFila2(oldQueue);
+        threadIterator = (TCB_t*) GetAtIteratorFila2(oldQueue);
+
+        // procura pelo tid correspondente na oldQueue
+        while(threadIterator->tid != tid)
+        {
+            // avança enquanto não encontrar
+            NextFila2(oldQueue);
+            threadIterator = (TCB_t*) GetAtIteratorFila2(oldQueue);
+        }
+
+        threadToBeReplaced = threadIterator;
+        threadToBeReplaced->state = queueCode;
+
+        // tenta inserir o thread no final da fila nova
+        if(AppendFila2(newQueue, (void *)threadToBeReplaced) != 0)
+        {
+            printf("Erro inserindo na fila\n");
+            return -1;
+        }
+
+        // tenta remover o thread de onde estava na fila velha
+        if(DeleteAtIteratorFila2(oldQueue) != 0)
+        {
+            printf("Erro removendo da fila\n");
+            return -1;
+        }
+
+        return 0;
+    }
+}
