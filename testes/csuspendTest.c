@@ -1,10 +1,23 @@
-/*	Testes para função csuspend!
- *		falta testar:
- *		suspender thread bloqueado;
- *		tentar suspender thread suspensa-bloqueada (erro);
- *		etc
- */
+/* Testes para csuspend E cresume:
+   condições de teste:
 
+csuspend :
+	(ok)(erro) thread inexistente
+	(erro) thread ja suspensa (bloqueada)
+                              (ok)(apta)
+	(ok)(erro) thread suspendendo a si mesma
+	thread bloqueada suspensa
+	(ok)thread apta suspensa
+
+cresume :
+	(ok)(erro) thread inexistente
+	(erro) thread não esta suspensa (bloqueada)
+									(ok)(apta)
+									(ok)(memsa thread que fez a chamada)
+	thread voltando para bloqueada
+	(ok)thread voltado para apta
+
+ */
 #include "../include/cdata.h"
 #include "../include/cthread.h"
 #include "../include/support.h"
@@ -13,53 +26,56 @@
 #include <stdlib.h>
 
 
-void *MostraTexto(void *arg){
-    char *argument = (char*) arg;
-    printf("Hello there! \n");
-	//tentando suspender uma thread que não existe:
-	csuspend(5);
-    cyield();
-    printf("%s\n", argument);
-    
-    return NULL;
-}
-
-void *MostraNumeros(void *arg){
-    char *argument = (char*) arg;
-    printf("Ahoy here! \n");
-    printf("%s\n", argument);
-    
-    return NULL;
-}
-
-void *WaitForIt(void *arg){
-	int *argument = (int*) arg;
-	printf("The quick brown fox...\n");
+void *Quick(void *arg){
+	int argument = (int) arg;
+	printf("brown fox ");
 	csuspend(argument);
+    cyield();
+    csuspend(argument); //erro: Fox ja esta apta-suspensa
+    cresume(argument);
+    cresume(argument); //erro: Fox ja voltou para apta
+
 	return NULL;
 }
 
-int main(){
-
-    char arg1[] = " jumps over a lazy dog";
-    char arg2[] = "0 9 8 7 6 5 4 3 2 1";
-    
-    int tid1 = ccreate(MostraTexto, (void *) arg1, 0);
-	int tid2 = ccreate(WaitForIt, (void *) tid1, 0);
-    int tid3 = ccreate(MostraNumeros, (void *) arg2, 0);
-	
-	csuspend(tid3);
-	//tentando suspender um thread já suspenso
-	csuspend(tid3);
-	
-    printf("Main done creating its children, and suspending one of them\n");
+void *Fox(void *arg){
+    int argument = (int) arg;
     cyield();
-    //mostraNumeros não deve ser executada, pois esta suspensa
+    csuspend(argument); //erro: tid nao eh mais valido
 
-    //main tentando se suspender:
-    csuspend(0);
-	
-    printf("Fon\n");
-	
+    return NULL;
+}
+
+void *Lazy(void *arg){
+    int argument = (int) arg;
+    printf("The quick ");
+    cresume(argument);
+    return NULL;
+}
+
+void *Dog(void *arg){
+    char *argument = (char*) arg;
+    printf("%s\n", argument);
+    return NULL;
+}
+
+int main(){
+    char arg1[] = "a lazy dog.\n";
+
+    int tid4 = ccreate(Dog, (void *) arg1, 0);
+	int tid3 = ccreate(Lazy, (void *) tid4, 0);
+    int tid2 = ccreate(Fox, (void *) tid3, 0);
+    int tid1 = ccreate(Quick, (void *) tid2, 0);
+
+    csuspend(tid4);
+    cyield();
+    printf("jumps over ");
+    cyield();
+    csuspend(0); //erro: main tentando suspender a si mesma
+    cresume(0); //erro: thread nao esta suspensa
+    cyield();
+    cresume(tid1); //erro: tid1 nao eh mais valido
+
+	printf("Owata!\n");
     return(1);
 }
