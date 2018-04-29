@@ -58,9 +58,13 @@ int InitializingCThreads();
 // If there's no thread waiting for it, *ok == 0 (*ok == 1 otherwise)
 int getThreadWaitingFor(int beingWaitedTID, int *ok);
 
-// Removes a thread from the suspendedQueue and insert it to the readyQueue
+// Removes a thread from the blockedQueue and insert it to the readyQueue
 // Returns 0 upon success, -1 otherwise (probably won't be neccessary tho)
 int removeFromBlocked(int tid);
+
+// Removes a thread from the suspenseBlockedQueue and insert it to the suspenseReadyQueue
+// Returns 0 upon success, -1 otherwise (probably won't be neccessary tho)
+int removeFromSuspenseBlocked(int tid);
 
 // Returns 1 if it has found tid at the queue, 0 otherwise
 int searchFor(PFILA2 queue, int tid);

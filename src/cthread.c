@@ -193,3 +193,56 @@ int csuspend (int tid)
         }
     }
 }
+
+int csem_init(csem_t *sem, int count)
+{
+    sem->count = count;
+    sem->fila = malloc(sizeof(FILA2));
+    if(CreateFila2(sem->fila) != 0) return -1;
+    return 0;
+}
+
+int cwait(csem_t *sem)
+{
+    if(sem->count > 0)
+    {
+        sem->count--;
+        return 0;
+    }
+
+    //If sem->count <= 0, thread goes blocked and we insert it's TID in the sem->fila.
+    runningThread->state = PROCST_BLOQ;
+    if(AppendFila2(&blockedQueue, (void *)runningThread) != 0) return -1;
+    if(AppendFila2(sem->fila, (void *)runningThread->tid) != 0) return -1; //We insert the thread's TID in the semaphore's queue
+
+    sem->count--;
+
+    swapcontext(&runningThread->context, &yieldContext);
+    return 0;
+}
+
+int csignal(csem_t *sem)
+{
+    int unlockedTID;
+    if(FirstFila2(sem->fila) != 0) return -1;
+
+    unlockedTID = (int)GetAtIteratorFila2(sem->fila);
+    if(DeleteAtIteratorFila2(sem->fila) != 0) return -1;
+    
+    //The thread to be unlocked can be either in blocked or suspenseblocked
+    if(searchFor(&blockedQueue, unlockedTID))
+    {
+        removeFromBlocked(unlockedTID);
+        sem->count++;
+        return 0;
+    }
+
+    if(searchFor(&suspenseBlockedQueue, unlockedTID))
+    {
+        removeFromSuspenseBlocked(unlockedTID);
+        sem->count++;
+        return 0;
+    }
+
+    return -1;
+}

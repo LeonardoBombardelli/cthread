@@ -159,6 +159,32 @@ int removeFromBlocked(int tid)
   return found;
 }
 
+// Removes a thread from the suspenseBlockedQueue and insert it to the suspenseReadyQueue
+// Returns 0 upon success, -1 otherwise (probably won't be neccessary tho)
+int removeFromSuspenseBlocked(int tid)
+{
+  int found = 0;
+  TCB_t *aThread;
+
+  FirstFila2(&suspenseBlockedQueue);
+  aThread = (TCB_t*) GetAtIteratorFila2(&suspenseBlockedQueue);
+
+  while(aThread != NULL && found == 0){
+    if(aThread->tid == tid){
+      // Found the thread that was blocked
+      DeleteAtIteratorFila2(&suspenseBlockedQueue);
+      AppendFila2(&suspenseReadyQueue, (void*) aThread);
+      found = 1;
+    } else{
+      // Otherwise, advances in the queue
+      NextFila2(&suspenseBlockedQueue);
+      aThread = (TCB_t*) GetAtIteratorFila2(&suspenseBlockedQueue); 
+    }
+  }
+
+  return found;
+}
+
 // Returns 1 if it has found tid at the queue, 0 otherwise
 int searchFor(PFILA2 queue, int tid)
 {
