@@ -186,7 +186,7 @@ int csuspend (int tid)
                         return -1;
                     } else return 0;
                 } else {
-                    printf("Erro: thread invalida ou inexistente");
+                    printf("Erro: thread invalida ou inexistente\n");
                     return -1;
                 }
             }
