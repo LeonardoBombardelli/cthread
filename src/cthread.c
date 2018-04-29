@@ -194,6 +194,49 @@ int csuspend (int tid)
     }
 }
 
+int cresume (int tid)
+{
+    int returnCode;
+
+    // verifica se a thread recebida esta de fato suspensa
+    if((searchFor(&readyQueue,tid) != 0) ||
+       (searchFor(&blockedQueue,tid) !=0) ||
+       (runningThread->tid==tid))
+    {
+        printf("Erro: thread nao esta suspensa\n");
+        return -1;
+    } else {
+
+        // procura na fila de bloqueados suspensos
+        if(searchFor(&suspenseBlockedQueue, tid) ==1)
+        {
+            returnCode = replaceThreadOnQueues(&suspenseBlockedQueue, &blockedQueue,
+                                               PROCST_BLOQ, tid);
+            if( returnCode != 0)
+            {
+                printf("Erro ao retomar a thread\n");
+                return -1;
+            } else return 0;
+        } else {
+
+            // procura na fila de aptos bloqueados
+            if(searchFor(&suspenseReadyQueue, tid) ==1)
+            {
+                returnCode = replaceThreadOnQueues(&suspenseReadyQueue, &readyQueue,
+                                                   PROCST_APTO, tid);
+                if( returnCode != 0)
+                {
+                    printf("Erro ao retomar a thread\n");
+                    return -1;
+                } else return 0;
+            } else {
+                printf("Erro: thread invalida ou inexistente\n");
+            }
+        }
+    }
+}
+
+
 int csem_init(csem_t *sem, int count)
 {
     sem->count = count;
