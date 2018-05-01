@@ -21,12 +21,11 @@ all: bin/cutils.o bin/cthread.o
 	ar crs lib/libcthread.a $(OBJS)
 
 bin/cutils.o: src/cutils.c
-	gcc -c src/cutils.c -o bin/cutils.o
+	gcc -c src/cutils.c -o bin/cutils.o -Wall
 
 bin/cthread.o: src/cthread.c
-	gcc -c src/cthread.c -o bin/cthread.o
+	gcc -c src/cthread.c -o bin/cthread.o -Wall
 
 clean:
 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
-
 

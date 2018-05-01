@@ -213,7 +213,6 @@ int searchFor(PFILA2 queue, int tid)
 int searchAtcjoinQueue(int tid)
 {
   int found = 0;
-  int waitingTID = -1;
   cjoin_struct *cj = NULL;  
 
   FirstFila2(&cjoinQueue);
