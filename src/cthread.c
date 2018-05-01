@@ -11,6 +11,7 @@ Autores: Gabriel Tadiello, Laura Soares e Leonardo Bombardelli
 #include <stdio.h>
 #include <ucontext.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 
