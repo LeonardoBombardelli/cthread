@@ -19,10 +19,6 @@
 #define	PROCST_APTO_SUS	5
 #define	PROCST_BLOQ_SUS	6
 
-#define ERRO_CR_FILA -1
-#define ERRO_INS_FILA -2
-#define ERRO_REM_FILA -3
-#define ERRO_TID_INV -4
 
 
 /* Os campos "tid", "state" e "context" dessa estrutura devem ser mantidos e usados convenientemente

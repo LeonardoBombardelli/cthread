@@ -248,7 +248,7 @@ int csem_init(csem_t *sem, int count)
 {
     sem->count = count;
     sem->fila = malloc(sizeof(FILA2));
-    if(CreateFila2(sem->fila) != 0) return -1; //faltou esse
+    if(CreateFila2(sem->fila) != 0) return ERRO_CR_FILA;
     return 0;
 }
 
