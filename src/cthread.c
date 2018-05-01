@@ -296,3 +296,14 @@ int csignal(csem_t *sem)
 
     return -1; //faltou esse
 }
+
+int cidentify (char *name, int size){
+    int printSize, strSize;
+    char names[] = "Gabriel Tadiello de Moraes - 00277942\nLaura Rodrigues Soares - 00245174\nLeonardo Boaventura Bombardelli - 00233499\n";
+    printSize = snprintf(name,size,"Group:\n%s",names);
+    strSize = strlen(names) + strlen("Group:\n");
+    if(printSize == strSize || printSize == size){
+        return 0;
+    }else
+        return -1;
+}

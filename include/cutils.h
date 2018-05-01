@@ -17,10 +17,10 @@ Autores: Gabriel Tadiello, Laura Soares e Leonardo Bombardelli
 #define DEFAULTPRIORITY 0
 #define INITIALTID 1
 
-#define ERRO_CR_FILA -1     // erro durante a criaçao de uma fila
-#define ERRO_INS_FILA -2    // erro durante a insercao de um elemento em uma fila
-#define ERRO_REM_FILA -3    // erro ao remover um elemento de uma fila
-#define ERRO_TID_INV -4     // tid passado como paramentro e invalido ou inexistente
+#define ERRO_CR_FILA -2     // erro durante a criaçao de uma fila
+#define ERRO_INS_FILA -3    // erro durante a insercao de um elemento em uma fila
+#define ERRO_REM_FILA -4    // erro ao remover um elemento de uma fila
+#define ERRO_TID_INV -5     // tid passado como paramentro e invalido ou inexistente
 
 //For the meanwhile, i'm using this code as a guideline for the use of the ucontext primitives
 //https://gist.github.com/DanGe42/7148946
