@@ -23,8 +23,7 @@ int ccreate(void* (*start)(void*), void *arg, int prio)
       int initializedCorrectly = InitializingCThreads();
       if(initializedCorrectly != 0)
       {
-          printf("Erro criando as filas\n");
-          return -1;
+          return ERRO_CR_FILA;
       }
     }
 
@@ -45,9 +44,8 @@ int ccreate(void* (*start)(void*), void *arg, int prio)
     numberOfThreadsCreated++;
 
     if(AppendFila2(&readyQueue, (void *)newThread) != 0)
-    { 
-        printf("Erro inserindo na fila\n");
-        return -1;
+    {
+        return ERRO_INS_FILA;
     }
 
     return newThread->tid;
@@ -63,8 +61,7 @@ int cyield()
       int initializedCorrectly = InitializingCThreads();
       if(initializedCorrectly != 0)
       {
-          printf("Erro criando as filas\n");
-          return -1;
+          return ERRO_CR_FILA;
       }
     }
 
@@ -75,8 +72,7 @@ int cyield()
 
     if(AppendFila2(&readyQueue, (void *)yieldingThread) != 0)
     {
-        printf("Erro inserindo na fila\n");
-        return -1;
+        return ERRO_INS_FILA;
     }
 
     swapcontext(&yieldingThread->context, &yieldContext);
@@ -95,8 +91,7 @@ int cjoin(int tid)
       int initializedCorrectly = InitializingCThreads();
       if(initializedCorrectly != 0)
       {
-          printf("Erro criando as filas\n");
-          return -1;
+          return ERRO_CR_FILA;
       }
     }
 
@@ -105,7 +100,7 @@ int cjoin(int tid)
     if(searchAtcjoinQueue(tid) == 1)
     {
       // Some thread is already waiting for this tid
-      return -1;
+      return ERRO_TID_INV;
     }
 
     // Starts looking for the tid
@@ -125,7 +120,7 @@ int cjoin(int tid)
           if(found == 0)
           {
             // Thread doesn't exists (not created yet or already has finished) or it's the same as the running thread
-            return -1;
+            return ERRO_TID_INV;
           }
         }
       }
@@ -150,19 +145,26 @@ int csuspend (int tid)
 {
     int returnCode;
 
+    if(numberOfThreadsCreated == INITIALTID)
+    {
+        int initializedCorrectly = InitializingCThreads();
+        if(initializedCorrectly != 0)
+        {
+            return ERRO_CR_FILA;
+        }
+    }
+
     // verifica se o tid recebido ja se encontra nas filas de suspensos
     if((searchFor(&suspenseReadyQueue, tid) !=0 ) ||
        (searchFor(&suspenseBlockedQueue, tid) !=0))
     {
-        printf("Erro: thread ja suspensa\n");
-        return -1;
+        return ERRO_TID_INV;
     } else {
 
         // verifica se o tid recebido pertence a thread que fez a chamada
         if(runningThread->tid==tid)
         {
-            printf("Erro: thread suspendendo a si mesma\n");
-            return -1;
+            return ERRO_TID_INV;
         } else {
 
             // caso encontre o tid na fila de aptos
@@ -171,8 +173,7 @@ int csuspend (int tid)
                 returnCode = replaceThreadOnQueues(&readyQueue, &suspenseReadyQueue, PROCST_APTO_SUS, tid);
                 if( returnCode != 0)
                 {
-                    printf("Erro suspendendo a thread\n");
-                    return -1;
+                    return returnCode; //devolve o erro encontrado pela funçao auxiliar
                 } else return 0;
             } else {
 
@@ -182,12 +183,11 @@ int csuspend (int tid)
                     returnCode = replaceThreadOnQueues(&blockedQueue, &suspenseBlockedQueue, PROCST_BLOQ_SUS, tid);
                     if( returnCode != 0)
                     {
-                        printf("Erro suspendendo a thread\n");
-                        return -1;
+                        return returnCode;
                     } else return 0;
                 } else {
-                    printf("Erro: thread invalida ou inexistente\n");
-                    return -1;
+                    // o tid passado nao existe
+                    return ERRO_TID_INV;
                 }
             }
         }
@@ -198,13 +198,21 @@ int cresume (int tid)
 {
     int returnCode;
 
+    if(numberOfThreadsCreated == INITIALTID)
+    {
+        int initializedCorrectly = InitializingCThreads();
+        if(initializedCorrectly != 0)
+        {
+            return ERRO_CR_FILA;
+        }
+    }
+
     // verifica se a thread recebida esta de fato suspensa
     if((searchFor(&readyQueue,tid) != 0) ||
        (searchFor(&blockedQueue,tid) !=0) ||
        (runningThread->tid==tid))
     {
-        printf("Erro: thread nao esta suspensa\n");
-        return -1;
+        return ERRO_TID_INV;
     } else {
 
         // procura na fila de bloqueados suspensos
@@ -214,8 +222,7 @@ int cresume (int tid)
                                                PROCST_BLOQ, tid);
             if( returnCode != 0)
             {
-                printf("Erro ao retomar a thread\n");
-                return -1;
+                return returnCode;
             } else return 0;
         } else {
 
@@ -226,11 +233,11 @@ int cresume (int tid)
                                                    PROCST_APTO, tid);
                 if( returnCode != 0)
                 {
-                    printf("Erro ao retomar a thread\n");
-                    return -1;
+                    return returnCode;
                 } else return 0;
             } else {
-                printf("Erro: thread invalida ou inexistente\n");
+                // o tid passado nao existe
+                return ERRO_TID_INV;
             }
         }
     }
@@ -241,7 +248,7 @@ int csem_init(csem_t *sem, int count)
 {
     sem->count = count;
     sem->fila = malloc(sizeof(FILA2));
-    if(CreateFila2(sem->fila) != 0) return -1;
+    if(CreateFila2(sem->fila) != 0) return -1; //faltou esse
     return 0;
 }
 
@@ -255,8 +262,8 @@ int cwait(csem_t *sem)
 
     //If sem->count <= 0, thread goes blocked and we insert it's TID in the sem->fila.
     runningThread->state = PROCST_BLOQ;
-    if(AppendFila2(&blockedQueue, (void *)runningThread) != 0) return -1;
-    if(AppendFila2(sem->fila, (void *)runningThread->tid) != 0) return -1; //We insert the thread's TID in the semaphore's queue
+    if(AppendFila2(&blockedQueue, (void *)runningThread) != 0) return ERRO_INS_FILA;
+    if(AppendFila2(sem->fila, (void *)runningThread->tid) != 0) return ERRO_INS_FILA; //We insert the thread's TID in the semaphore's queue
 
     sem->count--;
 
@@ -267,10 +274,10 @@ int cwait(csem_t *sem)
 int csignal(csem_t *sem)
 {
     int unlockedTID;
-    if(FirstFila2(sem->fila) != 0) return -1;
+    if(FirstFila2(sem->fila) != 0) return -1; //faltou esse
 
     unlockedTID = (int)GetAtIteratorFila2(sem->fila);
-    if(DeleteAtIteratorFila2(sem->fila) != 0) return -1;
+    if(DeleteAtIteratorFila2(sem->fila) != 0) return ERRO_REM_FILA;
     
     //The thread to be unlocked can be either in blocked or suspenseblocked
     if(searchFor(&blockedQueue, unlockedTID))
@@ -287,5 +294,5 @@ int csignal(csem_t *sem)
         return 0;
     }
 
-    return -1;
+    return -1; //faltou esse
 }

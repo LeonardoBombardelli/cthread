@@ -245,8 +245,7 @@ int replaceThreadOnQueues(PFILA2 oldQueue, PFILA2 newQueue, int queueCode, int t
 
     if(searchFor(oldQueue, tid) !=1)
     {
-        printf("Erro: tid nao encontrado\n");
-        return -1;
+        return ERRO_TID_INV;
     } else {
 
         FirstFila2(oldQueue);
@@ -266,15 +265,13 @@ int replaceThreadOnQueues(PFILA2 oldQueue, PFILA2 newQueue, int queueCode, int t
         // tenta inserir o thread no final da fila nova
         if(AppendFila2(newQueue, (void *)threadToBeReplaced) != 0)
         {
-            printf("Erro inserindo na fila\n");
-            return -1;
+            return ERRO_INS_FILA;
         }
 
         // tenta remover o thread de onde estava na fila velha
         if(DeleteAtIteratorFila2(oldQueue) != 0)
         {
-            printf("Erro removendo da fila\n");
-            return -1;
+            return ERRO_REM_FILA;
         }
 
         return 0;
