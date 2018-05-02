@@ -29,3 +29,8 @@ bin/cthread.o: src/cthread.c
 clean:
 	rm -rf $(LIB_DIR)/*.a $(BIN_DIR)/*.o $(SRC_DIR)/*~ $(INC_DIR)/*~ *~
 
+tests:
+	$(MAKE) -C testes
+
+tests_clean:
+	$(MAKE) -C testes clean
